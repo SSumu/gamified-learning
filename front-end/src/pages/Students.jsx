@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Typography,
@@ -35,17 +35,15 @@ const Students = () => {
     name: "",
     email: "",
     password: "",
+    points: 0,
+    level: 1,
   });
   const [isEdit, setIsEdit] = useState(false);
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/students");
+      const response = await fetch("http://localhost:5000/api/students");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -57,17 +55,26 @@ const Students = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [enqueueSnackbar]);
+
+  useEffect(() => {
+    fetchStudents();
+  }, [fetchStudents]);
 
   const handleOpen = (student = null) => {
     if (student) {
-      setCurrentStudent(student);
+      setCurrentStudent({
+        ...student,
+        password: "", // Don't pre-fill password for edits
+      });
       setIsEdit(true);
     } else {
       setCurrentStudent({
         name: "",
         email: "",
         password: "",
+        points: 0,
+        level: 1,
       });
       setIsEdit(false);
     }
@@ -89,40 +96,47 @@ const Students = () => {
   const handleSubmit = async () => {
     try {
       const url = isEdit
-        ? `/api/students/${currentStudent._id}`
-        : "/api/students";
+        ? `http://localhost:5000/api/students/${currentStudent._id}`
+        : "http://localhost:5000/api/students";
 
       const method = isEdit ? "PUT" : "POST";
+
+      // For updates, don't send password if it's empty
+      const payload =
+        isEdit && !currentStudent.password
+          ? {
+              name: currentStudent.name,
+              email: currentStudent.email,
+              points: currentStudent.points,
+              level: currentStudent.level,
+            }
+          : currentStudent;
 
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(currentStudent),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
 
-      const result = await response.json();
       enqueueSnackbar(
         `Student ${isEdit ? "updated" : "created"} successfully`,
-        {
-          variant: "success",
-          autoHideDuration: 3000,
-        }
+        { variant: "success" }
       );
       fetchStudents();
       handleClose();
     } catch (error) {
       enqueueSnackbar(
-        `Failed to ${isEdit ? "update" : "create"} student: ${error.message}`,
-        {
-          variant: "error",
-          autoHideDuration: 4000,
-        }
+        error.message || `Failed to ${isEdit ? "update" : "create"} student`,
+        { variant: "error" }
       );
       console.error("Submission error:", error);
     }
@@ -130,7 +144,7 @@ const Students = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/students/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/students/${id}`, {
         method: "DELETE",
       });
 
@@ -138,16 +152,10 @@ const Students = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      enqueueSnackbar("Student deleted successfully", {
-        variant: "success",
-        autoHideDuration: 3000,
-      });
+      enqueueSnackbar("Student deleted successfully", { variant: "success" });
       fetchStudents();
     } catch (error) {
-      enqueueSnackbar(`Failed to delete student: ${error.message}`, {
-        variant: "error",
-        autoHideDuration: 4000,
-      });
+      enqueueSnackbar("Failed to delete student", { variant: "error" });
       console.error("Deletion error:", error);
     }
   };
@@ -155,7 +163,6 @@ const Students = () => {
   if (loading) {
     return (
       <Container
-        maxWidth="lg"
         sx={{
           display: "flex",
           justifyContent: "center",
@@ -175,6 +182,7 @@ const Students = () => {
         justifyContent="space-between"
         alignItems="center"
         mb={4}
+        mt={2}
       >
         <Typography variant="h4" component="h1" gutterBottom>
           Student Management
@@ -184,7 +192,6 @@ const Students = () => {
           color="primary"
           startIcon={<AddIcon />}
           onClick={() => handleOpen()}
-          sx={{ mb: 2 }}
         >
           Add Student
         </Button>
@@ -213,7 +220,6 @@ const Students = () => {
                     <IconButton
                       onClick={() => handleOpen(student)}
                       color="primary"
-                      aria-label="edit"
                       sx={{ mr: 1 }}
                     >
                       <EditIcon />
@@ -221,7 +227,6 @@ const Students = () => {
                     <IconButton
                       onClick={() => handleDelete(student._id)}
                       color="error"
-                      aria-label="delete"
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -276,7 +281,29 @@ const Students = () => {
             value={currentStudent.password}
             onChange={handleChange}
             required={!isEdit}
+            helperText={isEdit ? "Leave blank to keep current password" : ""}
             sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="normal"
+            name="points"
+            label="Points"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={currentStudent.points}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="normal"
+            name="level"
+            label="Level"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={currentStudent.level}
+            onChange={handleChange}
           />
         </DialogContent>
         <DialogActions>
