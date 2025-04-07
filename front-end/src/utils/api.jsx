@@ -1,6 +1,3 @@
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
-
 const handleResponse = async (response) => {
   if (!response.ok) {
     const error = await response
@@ -13,41 +10,54 @@ const handleResponse = async (response) => {
 
 // Student-related API calls
 export const fetchStudents = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/students`);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}/api/students`
+  );
   return handleResponse(response);
 };
 
 export const fetchStudentById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/api/students/${id}`);
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}/api/students/${id}`
+  );
   return handleResponse(response);
 };
 
 export const createStudent = async (studentData) => {
-  const response = await fetch(`${API_BASE_URL}/api/students`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(studentData),
-  });
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}/api/students`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(studentData),
+    }
+  );
   return handleResponse(response);
 };
 
 export const updateStudent = async (id, studentData) => {
-  const response = await fetch(`${API_BASE_URL}/api/students/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(studentData),
-  });
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}/api/students/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(studentData),
+    }
+  );
   return handleResponse(response);
 };
 
 export const deleteStudent = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/api/students/${id}`, {
-    method: "DELETE",
-  });
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}/api/students/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
   return handleResponse(response);
 };
 
@@ -55,7 +65,7 @@ export const deleteStudent = async (id) => {
 // Example for courses:
 /*
 export const fetchCourses = async () => {
-  const response = await fetch(`${API_BASE_URL}/api/courses`);
+  const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/courses`);
   return handleResponse(response);
 };
 */

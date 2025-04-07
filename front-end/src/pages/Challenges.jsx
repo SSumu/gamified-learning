@@ -50,7 +50,9 @@ const Challenges = () => {
 
   const fetchChallenges = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/challenges");
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/challenges`
+      );
       const data = await response.json();
       setChallenges(data);
     } catch (error) {
@@ -60,7 +62,9 @@ const Challenges = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/courses");
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/courses`
+      );
       const data = await response.json();
       setCourses(data);
     } catch (error) {
@@ -105,8 +109,8 @@ const Challenges = () => {
   const handleSubmit = async () => {
     try {
       const url = isEdit
-        ? `http://localhost:5000/api/challenges/${currentChallenge._id}`
-        : "http://localhost:5000/api/challenges";
+        ? `${process.env.REACT_APP_API_BASE_URL}/api/challenges/${currentChallenge._id}`
+        : `${process.env.REACT_APP_API_BASE_URL}/api/challenges`;
 
       const method = isEdit ? "PUT" : "POST";
 
@@ -130,7 +134,7 @@ const Challenges = () => {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/challenges/${id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/challenges/${id}`,
         {
           method: "DELETE",
         }

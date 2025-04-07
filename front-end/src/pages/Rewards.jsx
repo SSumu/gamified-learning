@@ -44,7 +44,9 @@ const Rewards = () => {
 
   const fetchRewards = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/rewards");
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/rewards`
+      );
       const data = await response.json();
       setRewards(data);
     } catch (error) {
@@ -84,8 +86,8 @@ const Rewards = () => {
   const handleSubmit = async () => {
     try {
       const url = isEdit
-        ? `http://localhost:5000/api/rewards/${currentReward._id}`
-        : "http://localhost:5000/api/rewards";
+        ? `${process.env.REACT_APP_API_BASE_URL}/api/rewards/${currentReward._id}`
+        : `${process.env.REACT_APP_API_BASE_URL}/api/rewards`;
 
       const method = isEdit ? "PUT" : "POST";
 
@@ -108,9 +110,12 @@ const Rewards = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/rewards/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/rewards/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         fetchRewards();
